@@ -67,7 +67,9 @@ const siteConfig: SiteConfig = {
     country: 'US',
   },
   socialLinks: [
-    'https://murrystreetmedia.com',
+    'https://www.facebook.com/profile.php?id=61590699216321',
+    'https://www.instagram.com/murrystreetmedia/',
+    'https://www.linkedin.com/company/murry-street-media/',
   ],
   // Twitter metadata - update with your actual handles or remove
   // twitter: {
@@ -93,5 +95,11 @@ const siteConfig: SiteConfig = {
     },
   },
 };
+
+export const socialProfiles = [
+  { platform: 'facebook', href: 'https://www.facebook.com/profile.php?id=61590699216321', label: 'Follow us on Facebook' },
+  { platform: 'instagram', href: 'https://www.instagram.com/murrystreetmedia/', label: 'Follow us on Instagram' },
+  { platform: 'linkedin', href: 'https://www.linkedin.com/company/murry-street-media/', label: 'Follow us on LinkedIn' },
+];
 
 export default siteConfig;

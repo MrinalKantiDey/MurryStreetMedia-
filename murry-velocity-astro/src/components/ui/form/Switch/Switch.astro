@@ -17,6 +17,10 @@ interface Props {
   value?: string;
   class?: string;
   id?: string;
+  /** Point the accessible name at an existing element instead of the `label` prop (e.g. when the label is rendered separately by the caller) */
+  ariaLabelledby?: string;
+  /** Point the accessible description at an existing element instead of the `description` prop */
+  ariaDescribedby?: string;
 }
 
 const {
@@ -29,6 +33,8 @@ const {
   value,
   class: className,
   id,
+  ariaLabelledby,
+  ariaDescribedby,
 } = Astro.props;
 
 const switchId = id || generateId('switch');
@@ -65,7 +71,8 @@ const thumbSizes = {
       value={value}
       role="switch"
       aria-checked={checked ? 'true' : 'false'}
-      aria-describedby={description ? `${switchId}-description` : undefined}
+      aria-labelledby={ariaLabelledby}
+      aria-describedby={ariaDescribedby ?? (description ? `${switchId}-description` : undefined)}
     />
     <!-- Track -->
     <div

@@ -23,6 +23,7 @@ import { footerVariants, footerColumnGridVariants } from './footer.variants';
 import Logo from '@/components/ui/marketing/Logo/Logo.astro';
 import Icon from '@/components/ui/primitives/Icon/Icon.astro';
 import siteConfig from '@/config/site.config';
+import { PUBLIC_CONSENT_ENABLED } from 'astro:env/client';
 
 export interface NavItem {
   label: string;
@@ -137,6 +138,8 @@ const socialIcons: Record<string, string> = {
 function getSocialIcon(platform: string): string {
   return socialIcons[platform] || platform;
 }
+
+const consentEnabled = PUBLIC_CONSENT_ENABLED;
 ---
 
 <footer class={footerClasses} {...attrs}>
@@ -150,7 +153,7 @@ function getSocialIcon(platform: string): string {
               <slot name="logo" />
             ) : (
               <a href="/" class="flex items-center" aria-label={siteConfig.name}>
-                <Logo variant="full" size="sm" forceDark={isInvertBg} />
+                <Logo variant="full" size="sm" forceDark={isInvertBg} loading="lazy" />
               </a>
             )}
             {(hasTaglineSlot || tagline) && (
@@ -198,6 +201,35 @@ function getSocialIcon(platform: string): string {
       </div>
     )}
 
+    {layout === 'simple' && (
+      <div class="mt-[var(--space-stack-lg)] flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-border pt-[var(--space-stack-lg)] text-center md:justify-between md:text-left">
+        <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-foreground-muted">
+          {showCopyright && <span>{processedCopyright}</span>}
+          <span class="text-foreground-subtle" aria-hidden="true">&middot;</span>
+          <span class="text-xs text-foreground-subtle">Created by StackNxt &middot; Developed with QuikoJS</span>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-x-[var(--space-inline-lg)] gap-y-2">
+          {legalLinks.map((link) => (
+            <a
+              href={link.href}
+              class="text-sm transition-colors text-foreground-muted hover:text-foreground"
+            >
+              {link.label}
+            </a>
+          ))}
+          {consentEnabled && (
+            <button
+              type="button"
+              data-open-consent-settings
+              class="text-sm transition-colors text-foreground-muted hover:text-foreground"
+            >
+              Cookie Preferences
+            </button>
+          )}
+        </div>
+      </div>
+    )}
+
     {layout === 'columns' && (
       <>
         <div class={footerColumnGridVariants({ columns })}>
@@ -208,7 +240,7 @@ function getSocialIcon(platform: string): string {
                 <slot name="logo" />
               ) : (
                 <a href="/" class="flex items-center" aria-label={siteConfig.name}>
-                  <Logo variant="full" size="sm" forceDark={isInvertBg} />
+                  <Logo variant="full" size="sm" forceDark={isInvertBg} loading="lazy" />
                 </a>
               )}
               {(hasTaglineSlot || tagline) && (
@@ -264,29 +296,36 @@ function getSocialIcon(platform: string): string {
         </div>
 
         {/* Bottom section */}
-        {(showCopyright || legalLinks.length > 0) && (
-          <div class="mt-[var(--space-section-header)] pt-[var(--space-stack-lg)] border-t border-border flex flex-col md:flex-row justify-between items-center gap-[var(--space-stack-md)]">
+        {(showCopyright || legalLinks.length > 0 || hasBottomSlot) && (
+          <div class="mt-[var(--space-section-header)] pt-[var(--space-stack-lg)] border-t border-border flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-center md:justify-between md:text-left">
             {hasBottomSlot ? (
               <slot name="bottom" />
             ) : (
               <>
-                {showCopyright && (
-                  <p class="text-sm text-foreground-muted">
-                    {processedCopyright}
-                  </p>
-                )}
-                {legalLinks.length > 0 && (
-                  <div class="flex items-center gap-[var(--space-inline-lg)]">
-                    {legalLinks.map((link) => (
-                      <a
-                        href={link.href}
-                        class="text-sm transition-colors text-foreground-muted hover:text-foreground"
-                      >
-                        {link.label}
-                      </a>
-                    ))}
-                  </div>
-                )}
+                <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-foreground-muted">
+                  {showCopyright && <span>{processedCopyright}</span>}
+                  <span class="text-foreground-subtle" aria-hidden="true">&middot;</span>
+                  <span class="text-xs text-foreground-subtle">Created by StackNxt &middot; Developed with QuikoJS</span>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-x-[var(--space-inline-lg)] gap-y-2">
+                  {legalLinks.map((link) => (
+                    <a
+                      href={link.href}
+                      class="text-sm transition-colors text-foreground-muted hover:text-foreground"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                  {consentEnabled && (
+                    <button
+                      type="button"
+                      data-open-consent-settings
+                      class="text-sm transition-colors text-foreground-muted hover:text-foreground"
+                    >
+                      Cookie Preferences
+                    </button>
+                  )}
+                </div>
               </>
             )}
           </div>
@@ -312,7 +351,7 @@ function getSocialIcon(platform: string): string {
             <slot name="logo" />
           ) : (
             <a href="/" class="flex items-center" aria-label={siteConfig.name}>
-              <Logo variant="full" size="md" forceDark={isInvertBg} />
+              <Logo variant="full" size="md" forceDark={isInvertBg} loading="lazy" />
             </a>
           )
         )}
@@ -357,24 +396,31 @@ function getSocialIcon(platform: string): string {
 
         {/* Copyright & Legal */}
         {(showCopyright || legalLinks.length > 0) && (
-          <div class="pt-[var(--space-stack-lg)] border-t border-border w-full flex flex-col items-center gap-[var(--space-stack-md)]">
-            {showCopyright && (
-              <p class="text-sm text-foreground-muted">
-                {processedCopyright}
-              </p>
-            )}
-            {legalLinks.length > 0 && (
-              <div class="flex items-center gap-[var(--space-inline-lg)]">
-                {legalLinks.map((link) => (
-                  <a
-                    href={link.href}
-                    class="text-sm transition-colors text-foreground-muted hover:text-foreground"
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            )}
+          <div class="pt-[var(--space-stack-lg)] border-t border-border w-full flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-foreground-muted">
+              {showCopyright && <span>{processedCopyright}</span>}
+              <span class="text-foreground-subtle" aria-hidden="true">&middot;</span>
+              <span class="text-xs text-foreground-subtle">Created by StackNxt &middot; Developed with QuikoJS</span>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-x-[var(--space-inline-lg)] gap-y-2">
+              {legalLinks.map((link) => (
+                <a
+                  href={link.href}
+                  class="text-sm transition-colors text-foreground-muted hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ))}
+              {consentEnabled && (
+                <button
+                  type="button"
+                  data-open-consent-settings
+                  class="text-sm transition-colors text-foreground-muted hover:text-foreground"
+                >
+                  Cookie Preferences
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -383,4 +429,15 @@ function getSocialIcon(platform: string): string {
 
   {/* Default slot for additional content */}
   <slot />
+
+  {consentEnabled && (
+    <script>
+      document.addEventListener('click', (e) => {
+        const trigger = (e.target as HTMLElement).closest('[data-open-consent-settings]');
+        if (!trigger) return;
+        const open = (window as unknown as { openConsentSettings?: () => void }).openConsentSettings;
+        if (typeof open === 'function') open();
+      });
+    </script>
+  )}
 </footer>

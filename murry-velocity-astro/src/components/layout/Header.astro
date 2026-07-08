@@ -167,7 +167,7 @@ const buttonId = `${menuId}-button`;
           <slot name="logo" />
         ) : (
           <a href="/" class="flex items-center" aria-label={logoText || siteConfig.name}>
-            <Logo variant="full" size={size === 'lg' ? 'md' : 'sm'} forceDark={isInvert} />
+            <Logo variant="full" size={size === 'lg' ? 'md' : 'sm'} forceDark={isInvert} loading="eager" />
           </a>
         ))
     }

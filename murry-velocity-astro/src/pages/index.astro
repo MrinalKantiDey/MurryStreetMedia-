@@ -65,7 +65,18 @@ const capabilities = [
 ];
 
 const clientLogos = [
-  'Walmart', 'Star Wars', 'Disney', 'envoy', 'Spotify', 'Hatchimals', 'Licor 43', 'Downtown Dallas Inc',
+  { name: 'Walmart', file: 'walmart.png' },
+  { name: 'Star Wars', file: 'star-wars.png' },
+  { name: 'Disney', file: 'disney.png' },
+  { name: 'Envoy', file: 'envoy.png' },
+  { name: 'Hatchimals', file: 'hatchimals.png' },
+  { name: 'Downtown Dallas Inc', file: 'downtown-dallas-inc.png' },
+  { name: 'Black Eyed Peas', file: 'black-eyed-peas.png' },
+  { name: 'Dallas Regional Chamber', file: 'drc.png' },
+  { name: 'EarthX', file: 'earthx.png' },
+  { name: 'P&G', file: 'pg.png' },
+  { name: "Sam's Club", file: 'sams-club.png' },
+  { name: 'UNDP', file: 'undp.png' },
 ];
 
 const trackRecord = [
@@ -135,7 +146,7 @@ const process = [
   description="Fractional CMO consulting and paid media engineered for enterprise-level transparency, accountability, and growth."
   includeOrgSchema
 >
-  <Hero layout="split" size="lg" showGrid blobPosition="right" class="bg-gradient-to-b from-brand-50 to-background">
+  <Hero layout="split" size="lg" showPattern tone="brand" stack blobPosition="right" class="bg-brand-500">
     <span
       slot="badge"
       class="inline-flex items-center rounded-full bg-gray-950 px-4 py-1.5 text-xs font-bold tracking-wider text-white uppercase"
@@ -144,7 +155,7 @@ const process = [
     </span>
 
     <h1 slot="title">
-      Digital marketing engineered for <span class="text-brand-600">operational maturity</span>.
+      Digital marketing engineered for <span class="text-gray-950/70">operational maturity</span>.
     </h1>
 
     <p slot="description">
@@ -152,21 +163,23 @@ const process = [
     </p>
 
     <Fragment slot="actions">
-      <Button size="lg" href="/contact">
+      <Button size="lg" variant="primary" class="bg-gray-950 text-white hover:bg-gray-800" href="/contact">
         Schedule Your Discovery Call
       </Button>
-      <Button size="lg" variant="outline" href="#approach">
+      <Button size="lg" variant="outline" class="border-gray-950/20 text-gray-950 hover:bg-gray-950/5" href="#approach">
         How We Work
       </Button>
     </Fragment>
 
-    <div slot="aside" class="relative overflow-hidden rounded-2xl bg-[var(--obsidian)] p-8 shadow-xl md:p-10">
+    <div slot="aside" class="relative overflow-hidden rounded-2xl bg-[var(--obsidian)] p-6 shadow-xl">
       <div class="street-pattern pointer-events-none absolute inset-0 bg-white/[0.04]" aria-hidden="true" />
-      <img src={logomark.src} alt="" class="relative h-20 w-auto md:h-24" aria-hidden="true" />
-      <p class="relative mt-6 max-w-sm text-lg font-semibold leading-snug text-white">
-        Built from 17 years of enterprise media leadership — before Murry Street Media had a name.
-      </p>
-      <div class="relative mt-8 grid grid-cols-3 gap-4 border-t border-white/15 pt-6">
+      <div class="relative flex items-center gap-5">
+        <img src={logomark.src} width={logomark.width} height={logomark.height} loading="eager" decoding="async" alt="" class="h-12 w-auto shrink-0" aria-hidden="true" />
+        <p class="text-sm font-semibold leading-snug text-white">
+          Built from 17 years of enterprise media leadership — before Murry Street Media had a name.
+        </p>
+      </div>
+      <div class="relative mt-5 grid grid-cols-3 gap-4 border-t border-white/15 pt-5">
         {heroStats.map((stat) => (
           <div>
             <div class="font-display text-brand-500 text-2xl font-bold">{stat.value}</div>
@@ -239,12 +252,17 @@ const process = [
       Our founder has directed holistic digital frameworks, grass-roots activations, and omnichannel social and programmatic media for some of the world's most recognizable organizations. We bring that exact same enterprise-level strategic rigor directly to you.
     </p>
 
-    <div class="mt-[var(--space-section-header)] flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
-      {clientLogos.map((name) => (
-        <span class="font-display text-lg font-bold uppercase tracking-wide text-foreground-subtle">
-          {name}
-        </span>
-      ))}
+    <div class="logo-marquee mt-[var(--space-section-header)] relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
+      <div class="logo-marquee-track flex w-max items-center gap-16">
+        {[...clientLogos, ...clientLogos].map((client) => (
+          <img
+            src={`/logos/clients/${client.file}`}
+            alt={client.name}
+            class="h-8 w-auto shrink-0 opacity-60 grayscale transition-all duration-200 hover:opacity-100 hover:grayscale-0 md:h-10"
+            loading="lazy"
+          />
+        ))}
+      </div>
     </div>
 
     <p class="mx-auto mt-8 max-w-2xl text-xs text-foreground-subtle">
@@ -347,3 +365,28 @@ const process = [
 
   <CTA />
 </LandingLayout>
+
+<style>
+  .logo-marquee-track {
+    animation: logo-marquee 30s linear infinite;
+  }
+
+  .logo-marquee:hover .logo-marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes logo-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-marquee-track {
+      animation: none;
+    }
+  }
+</style>

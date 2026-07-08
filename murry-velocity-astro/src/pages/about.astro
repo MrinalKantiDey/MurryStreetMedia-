@@ -3,99 +3,110 @@
  * About page
  * URL: /about
  */
+import { Image } from 'astro:assets';
 import PageLayout from '@/layouts/PageLayout.astro';
-import Icon from '@/components/ui/primitives/Icon/Icon.astro';
 import Badge from '@/components/ui/data-display/Badge/Badge.astro';
-import Card from '@/components/ui/data-display/Card/Card.astro';
+import Button from '@/components/ui/form/Button/Button.astro';
+import CTASection from '@/components/ui/marketing/CTA/CTA.astro';
 import { Hero } from '@/components/hero';
+import founderPortrait from '@/assets/about/founder-portrait.jpeg';
+import founderChildhood from '@/assets/about/founder-childhood.jpg';
 ---
 
 <PageLayout
   title="About Us"
-  description="Learn about Velocity and the team behind it."
+  description="Meet the founder behind Murry Street Media — a story of grit, craft, and a street sign that couldn't make up its mind."
 >
   <Hero layout="centered" size="sm" showGrid>
     <Badge slot="badge" pill pulse>Our Story</Badge>
 
     <h1 slot="title">
-      Built by developers, <span class="text-brand-500">for developers.</span>
+      From a mislabeled street sign <span class="text-brand-500">to enterprise media.</span>
     </h1>
 
     <p slot="description">
-      Velocity was born from the frustration of setting up the same tooling over and over.
-      We decided to create the starter we always wished existed.
+      Every great media company needs an origin story. Ours involves a supportive family, a 10-year-old entrepreneur, and a city street sign that couldn't decide how it was spelled.
     </p>
   </Hero>
 
-  <!-- Mission Section -->
-  <section class="py-20 bg-surface-invert">
-    <div class="mx-auto max-w-4xl px-6 text-center">
-      <h2 class="font-display text-3xl md:text-4xl font-bold text-on-invert mb-6">
-        Our Mission
+  {/* ================= Founder intro ================= */}
+  <section class="py-[var(--space-section)]">
+    <div class="mx-auto grid max-w-5xl items-center gap-10 px-6 lg:grid-cols-2 lg:gap-16">
+      <div class="order-2 lg:order-1">
+        <Badge pill class="mb-[var(--space-heading-gap)]">Why "Murry"?</Badge>
+        <p class="text-lg leading-relaxed text-foreground-secondary">
+          One end of my childhood street was spelled Murray, the other Murry. I picked the shorter one and it stuck.
+        </p>
+        <div class="mt-[var(--space-stack-lg)] border-l-4 border-brand-500 pl-5">
+          <p class="font-display text-lg font-bold text-foreground">Lacey</p>
+          <p class="text-sm text-foreground-muted">Founder & Principal Strategist, Murry Street Media</p>
+        </div>
+      </div>
+      <div class="order-1 lg:order-2">
+        <div class="overflow-hidden rounded-2xl shadow-xl">
+          <Image
+            src={founderPortrait}
+            alt="Lacey, Founder & Principal Strategist of Murry Street Media"
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ================= Origin story ================= */}
+  <section class="bg-background-secondary py-[var(--space-section)]">
+    <div class="mx-auto grid max-w-5xl items-center gap-10 px-6 lg:grid-cols-2 lg:gap-16">
+      <div>
+        <div class="overflow-hidden rounded-2xl shadow-xl">
+          <Image
+            src={founderChildhood}
+            alt="Lacey as a child, the ten-year-old entrepreneur behind Murry Street Media's origin story"
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </div>
+      <div class="space-y-5 text-lg leading-relaxed text-foreground-secondary">
+        <p>
+          While other kids on the block were playing house, I was busy playing business. So it was no surprise that when I turned ten, my parents helped me launch my first official venture.
+        </p>
+        <p>
+          My mom, an arts and crafts fair promoter, gave me a booth space, and my dad jumped into the workshop to help me manufacture our inventory of custom bulletin boards. I skipped the lemonade stand and went straight to a family-backed startup.
+        </p>
+        <blockquote class="border-l-4 border-brand-500 py-1 pl-6 text-2xl font-bold text-foreground text-balance">
+          If you want to get noticed, you have to build something worth looking at.
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  {/* ================= Today ================= */}
+  <section class="invert-section bg-background py-[var(--space-section)]">
+    <div class="mx-auto max-w-3xl px-6 text-center">
+      <h2 class="font-display text-2xl font-bold text-balance md:text-3xl">
+        Today, Murry Street Media helps businesses do exactly that.
       </h2>
-      <p class="text-lg text-on-invert-secondary max-w-2xl mx-auto leading-relaxed">
-        To help developers ship beautiful, performant websites faster by eliminating
-        boilerplate and providing sensible defaults.
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-on-invert-muted">
+        We've traded the craft booths for cutting-edge media strategy, but that same childhood grit, creative spark, and teamwork drives everything we do.
       </p>
     </div>
   </section>
 
-  <!-- Values Section -->
-  <section class="py-20">
-    <div class="mx-auto max-w-6xl px-6">
-      <h2 class="font-display text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
-        What We Believe
-      </h2>
-
-      <div class="grid gap-8 md:grid-cols-3">
-        <!-- Performance -->
-        <Card hover>
-          <div class="flex items-start gap-4">
-            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 flex items-center justify-center text-brand-500 shrink-0">
-              <Icon name="zap" size="md" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-base font-bold text-foreground">Performance First</h3>
-              <p class="text-sm text-foreground-muted leading-relaxed mt-1.5">
-                Every decision is made with performance in mind. Zero JavaScript by default,
-                optimized images, and minimal CSS.
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <!-- Simplicity -->
-        <Card hover>
-          <div class="flex items-start gap-4">
-            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 flex items-center justify-center text-brand-500 shrink-0">
-              <Icon name="box" size="md" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-base font-bold text-foreground">Simplicity Matters</h3>
-              <p class="text-sm text-foreground-muted leading-relaxed mt-1.5">
-                We strip away complexity so you can focus on what matters: building
-                great products for your users.
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <!-- Open Source -->
-        <Card hover>
-          <div class="flex items-start gap-4">
-            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 flex items-center justify-center text-brand-500 shrink-0">
-              <Icon name="github" size="md" />
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-base font-bold text-foreground">Open Source</h3>
-              <p class="text-sm text-foreground-muted leading-relaxed mt-1.5">
-                Velocity is free and open source. We believe in giving back to the
-                community that made this possible.
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-  </section>
+  {/* ================= Closing CTA ================= */}
+  <CTASection variant="brand" size="lg" maxWidth="md">
+    <h2 slot="heading">
+      Ready to build something worth looking at?
+    </h2>
+    <p slot="description">
+      Let's map out how to get you noticed.
+    </p>
+    <Fragment slot="actions">
+      <Button size="lg" variant="primary" class="bg-gray-950 text-white hover:bg-gray-800" href="/contact">
+        Schedule Your Alignment Call
+      </Button>
+      <Button size="lg" variant="outline" class="border-gray-950/20 text-gray-950 hover:bg-gray-950/5" href="/services">
+        Explore Our Services
+      </Button>
+    </Fragment>
+  </CTASection>
 </PageLayout>

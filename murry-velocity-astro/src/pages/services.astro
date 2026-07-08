@@ -1,0 +1,171 @@
+---
+/**
+ * Services & Pricing page
+ * URL: /services
+ */
+import PageLayout from '@/layouts/PageLayout.astro';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import Badge from '@/components/ui/data-display/Badge/Badge.astro';
+import Card from '@/components/ui/data-display/Card/Card.astro';
+import Button from '@/components/ui/form/Button/Button.astro';
+import CTASection from '@/components/ui/marketing/CTA/CTA.astro';
+import { Hero } from '@/components/hero';
+import { services } from '@/config/services.config';
+
+const process = [
+  {
+    icon: 'phone',
+    title: 'The 30-45-Minute Alignment Call',
+    body: 'We verify your market targets, active channels, review your contract in depth, and clarify budget benchmarks to ensure a perfect strategic fit.',
+  },
+  {
+    icon: 'layers',
+    title: 'The Rigorous Onboarding Phase',
+    body: 'We execute a deep, systemized onboarding process inside our operational blueprints so your team knows exactly what is happening at every milestone — ensuring nobody is left behind.',
+  },
+  {
+    icon: 'trending-up',
+    title: 'The Systemized Launch',
+    body: 'We deploy your custom media frameworks with 100% account sovereignty, daily tracking visibility, and plain-language execution.',
+  },
+];
+---
+
+<PageLayout
+  title="Services & Pricing"
+  description="Straight-forward pricing with no hidden fees, no markups, and no opaque agency jargon. See exactly what you pay for and where your budget goes."
+>
+  <Hero layout="centered" size="sm" showGrid>
+    <Badge slot="badge" pill pulse>Services & Pricing</Badge>
+
+    <h1 slot="title">
+      Straight-forward pricing. <span class="text-brand-500">Zero hidden fees.</span>
+    </h1>
+
+    <p slot="description">
+      We believe in high-performing media strategy built on absolute operational integrity and a strict framework of capital integrity. You will always know exactly what you are paying for and where your budget goes.
+    </p>
+  </Hero>
+
+  {/* ================= Intro ================= */}
+  <section class="mx-auto max-w-4xl px-6 pb-[var(--space-section)] text-center">
+    <h2 class="font-display text-2xl font-bold text-foreground text-balance md:text-3xl">
+      Core Media Services & Straight-Forward Pricing
+    </h2>
+    <p class="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-foreground-muted">
+      Our pricing is fully transparent and tied directly to your monthly media budget tiers or clear flat-rate structures. We don't hide fees in complex tracking matrices — what you see is what you pay.
+    </p>
+  </section>
+
+  {/* ================= Services list ================= */}
+  <section class="mx-auto max-w-5xl px-6 pb-[var(--space-section)]">
+    <div class="space-y-6">
+      {services.map((service) => (
+        <Card id={service.slug} padding="lg" class="scroll-mt-24">
+          <div class="flex flex-col gap-6 lg:flex-row lg:gap-10">
+            {/* Left: identity + description */}
+            <div class="lg:w-3/5">
+              <div class="flex items-center gap-3">
+                <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-500/15 text-gray-950">
+                  <Icon name={service.icon} size="md" />
+                </div>
+                <span class="font-display text-brand-600 text-sm font-bold tracking-widest">
+                  SERVICE {service.number}
+                </span>
+              </div>
+              <h3 class="font-display mt-4 text-xl font-bold text-foreground">
+                {service.title}
+              </h3>
+              <p class="mt-3 leading-relaxed text-foreground-muted">
+                {service.description}
+              </p>
+
+              <div class="mt-5 flex items-start gap-3 rounded-lg border border-border bg-secondary/40 p-4">
+                <Icon name="file-text" size="sm" class="mt-0.5 shrink-0 text-foreground-muted" />
+                <div>
+                  <p class="text-xs font-bold tracking-wide text-foreground-subtle uppercase">Client Obligation</p>
+                  <p class="mt-1 text-sm leading-relaxed text-foreground-muted">{service.obligation}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: pricing */}
+            <div class="flex flex-col justify-center rounded-xl bg-brand-500/10 p-6 lg:w-2/5">
+              <p class="text-xs font-bold tracking-wide text-brand-600 uppercase">Straight-Forward Pricing</p>
+              <p class="mt-2 font-semibold leading-relaxed text-foreground">{service.pricing}</p>
+
+              {service.overage && (
+                <div class="mt-4 border-t border-border pt-4">
+                  <p class="text-xs font-bold tracking-wide text-foreground-subtle uppercase">{service.overageLabel}</p>
+                  <p class="mt-1 text-sm leading-relaxed text-foreground-muted">{service.overage}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  </section>
+
+  {/* ================= Antidote to Agency Bloat ================= */}
+  <section class="invert-section bg-background py-[var(--space-section)]">
+    <div class="mx-auto max-w-4xl px-6 text-center">
+      <Badge variant="brand" pill class="mx-auto">The Antidote to Agency Bloat</Badge>
+      <h2 class="font-display mt-[var(--space-heading-gap)] text-3xl font-bold text-balance md:text-4xl">
+        We don't pad our bottom line with hidden overages.
+      </h2>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-on-invert-muted">
+        Traditional legacy agencies over-promise to win contracts, pass your accounts off to unsupervised junior staff, and gatekeep your advertising data using confusing marketing jargon. They also muddy the waters with hidden markup percentages on your ad spend and complex, variable hidden administration fees.
+      </p>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-on-invert-muted">
+        The Murry Street Model is different. We are a lean, veteran-guided consultancy that operates on a strict framework of absolute account ownership, capital integrity, straight-forward pricing, and process-driven execution. Our pricing matches our operational philosophy: clear, upfront, and fully aligned with your business growth.
+      </p>
+    </div>
+  </section>
+
+  {/* ================= Structured Client Activation Process ================= */}
+  <section class="py-[var(--space-section)]">
+    <div class="mx-auto max-w-6xl px-6">
+      <div class="mx-auto max-w-3xl text-center">
+        <Badge pill class="mx-auto">Our Structured Client Activation Process</Badge>
+        <h2 class="font-display mt-[var(--space-heading-gap)] text-3xl font-bold text-balance md:text-4xl">
+          Every partnership begins transparently
+        </h2>
+        <p class="mt-4 text-lg leading-relaxed text-foreground-muted">
+          Here is exactly how we get started — with no onboarding surprises.
+        </p>
+      </div>
+
+      <div class="mt-[var(--space-section-header)] grid gap-6 md:grid-cols-3">
+        {process.map((step, i) => (
+          <div class="relative rounded-[var(--theme-radius-lg)] border border-border bg-card p-8">
+            <span class="font-display text-brand-500 text-sm font-bold tracking-widest">STEP {i + 1}</span>
+            <div class="mt-4 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary text-foreground">
+              <Icon name={step.icon} size="md" />
+            </div>
+            <h3 class="font-display mt-4 text-lg font-bold text-foreground">{step.title}</h3>
+            <p class="mt-2 leading-relaxed text-foreground-muted">{step.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* ================= Closing CTA ================= */}
+  <CTASection variant="brand" size="lg" maxWidth="md">
+    <h2 slot="heading">
+      Ready to stop funding the agency black box?
+    </h2>
+    <p slot="description">
+      Let's map out how to get you noticed.
+    </p>
+    <Fragment slot="actions">
+      <Button size="lg" variant="primary" class="bg-gray-950 text-white hover:bg-gray-800" href="/contact">
+        Schedule Your Alignment Call
+      </Button>
+      <Button size="lg" variant="outline" class="border-gray-950/20 text-gray-950 hover:bg-gray-950/5" href="/pricing">
+        View Pricing Summary
+      </Button>
+    </Fragment>
+  </CTASection>
+</PageLayout>

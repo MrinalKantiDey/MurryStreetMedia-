@@ -1,0 +1,88 @@
+---
+/**
+ * Pricing page
+ * URL: /pricing
+ */
+import PageLayout from '@/layouts/PageLayout.astro';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import Badge from '@/components/ui/data-display/Badge/Badge.astro';
+import Card from '@/components/ui/data-display/Card/Card.astro';
+import Button from '@/components/ui/form/Button/Button.astro';
+import CTASection from '@/components/ui/marketing/CTA/CTA.astro';
+import { Hero } from '@/components/hero';
+import { services } from '@/config/services.config';
+---
+
+<PageLayout
+  title="Pricing"
+  description="Clear, upfront pricing for every media service we offer. No hidden fees, no markups, no surprises."
+>
+  <Hero layout="centered" size="sm" showGrid>
+    <Badge slot="badge" pill pulse>Pricing</Badge>
+
+    <h1 slot="title">
+      Clear pricing. <span class="text-brand-500">No surprises.</span>
+    </h1>
+
+    <p slot="description">
+      Every service is billed transparently against your media budget tiers or a clear flat-rate structure — what you see is what you pay.
+    </p>
+  </Hero>
+
+  {/* ================= Pricing summary ================= */}
+  <section class="mx-auto max-w-5xl px-6 pb-[var(--space-section)]">
+    <div class="grid gap-6 md:grid-cols-2">
+      {services.map((service) => (
+        <Card padding="lg" class="flex flex-col">
+          <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-brand-500/15 text-gray-950">
+              <Icon name={service.icon} size="md" />
+            </div>
+            <h2 class="font-display text-base font-bold text-foreground">{service.title}</h2>
+          </div>
+
+          <div class="mt-5 flex-1 rounded-xl bg-brand-500/10 p-5">
+            <p class="text-xs font-bold tracking-wide text-brand-600 uppercase">Straight-Forward Pricing</p>
+            <p class="mt-2 font-semibold leading-relaxed text-foreground">{service.pricing}</p>
+          </div>
+
+          {service.overage && (
+            <p class="mt-3 text-xs leading-relaxed text-foreground-subtle">
+              <span class="font-bold">{service.overageLabel}:</span> {service.overage}
+            </p>
+          )}
+
+          <a
+            href={`/services#${service.slug}`}
+            class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-brand-600 transition-colors hover:text-brand-700"
+          >
+            See full scope & details
+            <Icon name="arrow-right" size="xs" />
+          </a>
+        </Card>
+      ))}
+    </div>
+
+    <p class="mx-auto mt-8 max-w-2xl text-center text-xs text-foreground-subtle">
+      All pricing is tied directly to your monthly media budget tier. No hidden markups, no complex tracking matrices — what you see is what you pay.
+    </p>
+  </section>
+
+  {/* ================= Closing CTA ================= */}
+  <CTASection variant="brand" size="lg" maxWidth="md">
+    <h2 slot="heading">
+      Ready to stop funding the agency black box?
+    </h2>
+    <p slot="description">
+      Let's map out how to get you noticed.
+    </p>
+    <Fragment slot="actions">
+      <Button size="lg" variant="primary" class="bg-gray-950 text-white hover:bg-gray-800" href="/contact">
+        Schedule Your Alignment Call
+      </Button>
+      <Button size="lg" variant="outline" class="border-gray-950/20 text-gray-950 hover:bg-gray-950/5" href="/services">
+        View Full Services
+      </Button>
+    </Fragment>
+  </CTASection>
+</PageLayout>

@@ -12,7 +12,13 @@ import Textarea from '@/components/ui/form/Textarea/Textarea.astro';
 import Card from '@/components/ui/data-display/Card/Card.astro';
 import { Hero } from '@/components/hero';
 import GoogleMap from '@/components/ui/data-display/GoogleMap/GoogleMap.astro';
-import siteConfig from '@/config/site.config';
+import siteConfig, { socialProfiles } from '@/config/site.config';
+
+const socialLabels: Record<string, string> = {
+  facebook: 'Facebook',
+  instagram: 'Instagram',
+  linkedin: 'LinkedIn',
+};
 ---
 
 <PageLayout
@@ -118,30 +124,10 @@ import siteConfig from '@/config/site.config';
                 </Card>
               </a>
 
-              <!-- GitHub -->
-              <a
-                href="https://github.com/southwellmedia/velocity"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="block"
-              >
-                <Card hover padding="sm">
-                  <div class="flex items-center gap-4">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 flex items-center justify-center text-brand-500 shrink-0">
-                      <Icon name="github" size="md" />
-                    </div>
-                    <div>
-                      <p class="text-sm text-foreground-muted">GitHub</p>
-                      <p class="font-medium text-foreground">velocity</p>
-                    </div>
-                  </div>
-                </Card>
-              </a>
-
-              <!-- Twitter -->
-              {siteConfig.twitter && (
+              <!-- Social profiles -->
+              {socialProfiles.map((social) => (
                 <a
-                  href={`https://twitter.com/${siteConfig.twitter.site.replace('@', '')}`}
+                  href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="block"
@@ -149,16 +135,16 @@ import siteConfig from '@/config/site.config';
                   <Card hover padding="sm">
                     <div class="flex items-center gap-4">
                       <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-500/20 to-brand-500/5 flex items-center justify-center text-brand-500 shrink-0">
-                        <Icon name="twitter" size="md" />
+                        <Icon name={social.platform} size="md" />
                       </div>
                       <div>
-                        <p class="text-sm text-foreground-muted">Twitter</p>
-                        <p class="font-medium text-foreground">{siteConfig.twitter.site}</p>
+                        <p class="text-sm text-foreground-muted">{socialLabels[social.platform] ?? social.platform}</p>
+                        <p class="font-medium text-foreground">Murry Street Media</p>
                       </div>
                     </div>
                   </Card>
                 </a>
-              )}
+              ))}
             </div>
           </div>
         </div>

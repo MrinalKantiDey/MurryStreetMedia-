@@ -23,6 +23,8 @@ interface Props {
   variant?: 'logomark' | 'full';
   /** Additional CSS classes (applied to the wrapping span) */
   class?: string;
+  /** Native browser loading behavior — use 'lazy' when the logo renders below the fold (e.g. footer, closing CTA) */
+  loading?: 'eager' | 'lazy';
 }
 
 const {
@@ -30,6 +32,7 @@ const {
   forceDark = false,
   variant = 'logomark',
   class: className,
+  loading = 'eager',
 } = Astro.props;
 
 const sizeClasses: Record<string, string> = {
@@ -46,7 +49,11 @@ const sizeClass = sizeClasses[size] || sizeClasses.md;
 <span class:list={['inline-flex items-center gap-2.5', className]}>
   <img
     src={logomark.src}
+    width={logomark.width}
+    height={logomark.height}
     alt={variant === 'logomark' ? siteConfig.branding.logo.alt : ''}
+    loading={loading}
+    decoding="async"
     class:list={[sizeClass, 'w-auto shrink-0']}
   />
 
@@ -54,19 +61,31 @@ const sizeClass = sizeClasses[size] || sizeClasses.md;
     forceDark ? (
       <img
         src={wordmarkDark.src}
+        width={wordmarkDark.width}
+        height={wordmarkDark.height}
         alt={siteConfig.branding.logo.alt}
+        loading={loading}
+        decoding="async"
         class:list={[sizeClass, 'w-auto']}
       />
     ) : (
       <Fragment>
         <img
           src={wordmark.src}
+          width={wordmark.width}
+          height={wordmark.height}
           alt={siteConfig.branding.logo.alt}
+          loading={loading}
+          decoding="async"
           class:list={[sizeClass, 'w-auto block dark:hidden']}
         />
         <img
           src={wordmarkDark.src}
+          width={wordmarkDark.width}
+          height={wordmarkDark.height}
           alt=""
+          loading={loading}
+          decoding="async"
           class:list={[sizeClass, 'w-auto hidden dark:block']}
           aria-hidden="true"
         />

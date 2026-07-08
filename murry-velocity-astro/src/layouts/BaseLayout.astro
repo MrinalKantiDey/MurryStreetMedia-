@@ -4,6 +4,7 @@ import SEO from '@/components/seo/SEO.astro';
 import JsonLd from '@/components/seo/JsonLd.astro';
 import Analytics from '@/components/layout/Analytics.astro';
 import ConsentBanner from '@/components/ui/overlay/ConsentBanner';
+import BackToTop from '@/components/layout/BackToTop.astro';
 import { ClientRouter } from 'astro:transitions';
 import { createWebsiteSchema, createOrganizationSchema } from '@/lib/schema';
 import type { WebSite, Organization, WithContext } from 'schema-dts';
@@ -81,14 +82,26 @@ if (includeOrgSchema) {
     <!-- Theme script (runs before render to prevent flash) -->
     <script is:inline>
       (function () {
-        const theme = localStorage.getItem('theme');
-        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        function applyTheme(doc) {
+          const theme = localStorage.getItem('theme');
+          const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        if (theme === 'dark' || (!theme && systemDark)) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
+          if (theme === 'dark' || (!theme && systemDark)) {
+            doc.documentElement.classList.add('dark');
+          } else {
+            doc.documentElement.classList.remove('dark');
+          }
         }
+
+        // Initial load.
+        applyTheme(document);
+
+        // ClientRouter syncs <html>'s attributes to the freshly-fetched
+        // (always light-classed) server markup on every transition, so patch
+        // the incoming document before the swap happens to avoid a flash.
+        document.addEventListener('astro:before-swap', (event) => {
+          applyTheme(event.newDocument);
+        });
       })();
     </script>
   </head>
@@ -111,5 +124,6 @@ if (includeOrgSchema) {
     <slot name="footer" />
 
     <ConsentBanner />
+    <BackToTop />
   </body>
 </html>
