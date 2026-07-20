@@ -1,0 +1,247 @@
+---
+/**
+ * Cart page
+ * URL: /cart
+ *
+ * Stays fully static/prerendered: the product catalog is embedded as a JSON
+ * blob at build time, and all rendering (line items, qty, subtotal, the
+ * ?canceled=1 banner) happens client-side against the localStorage-backed
+ * cart store. Checkout submits to the dynamic /api/checkout route.
+ */
+import PageLayout from '@/layouts/PageLayout.astro';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import Button from '@/components/ui/form/Button/Button.astro';
+import { getAllProducts } from '@/lib/products';
+
+const products = await getAllProducts();
+
+const catalog = products.map((product) => ({
+  slug: product.id,
+  name: product.data.name,
+  shortDescription: product.data.shortDescription,
+  priceCents: product.data.priceCents,
+  currency: product.data.currency,
+  image: product.data.image?.src ?? null,
+}));
+---
+
+<PageLayout title="Your Cart" description="Review your cart and check out securely.">
+  <section class="mx-auto max-w-3xl px-6 py-[var(--space-section-md)]">
+    <h1 class="font-display mb-8 text-3xl font-bold text-foreground">Your Cart</h1>
+
+    <div
+      id="cart-canceled-banner"
+      class="mb-6 hidden items-center gap-2 rounded-lg border border-border bg-background-secondary px-4 py-3 text-sm text-foreground-muted"
+    >
+      <Icon name="info" size="sm" />
+      Checkout was canceled — your cart is still saved.
+    </div>
+
+    <div id="cart-empty-state" class="hidden py-16 text-center">
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-background-secondary">
+        <Icon name="shopping-cart" size="lg" class="text-foreground-muted" />
+      </div>
+      <p class="text-lg text-foreground-muted">Your cart is empty.</p>
+      <Button href="/shop" class="mt-6">Browse the Shop</Button>
+    </div>
+
+    <div id="cart-items" class="hidden divide-y divide-border border-y border-border"></div>
+
+    <div id="cart-summary" class="mt-8 hidden">
+      <div class="flex items-center justify-between text-lg font-semibold text-foreground">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">$0.00</span>
+      </div>
+
+      <p id="cart-checkout-error" class="mt-3 hidden text-sm text-error" role="alert"></p>
+
+      <Button id="cart-checkout-button" size="lg" fullWidth class="mt-6">
+        <span id="cart-checkout-label">Checkout</span>
+      </Button>
+
+      <p class="mt-3 flex items-center justify-center gap-2 text-center text-xs text-foreground-subtle">
+        <Icon name="shield" size="xs" />
+        Secure checkout powered by Stripe
+      </p>
+    </div>
+  </section>
+
+  <script is:inline type="application/json" id="product-catalog" set:html={JSON.stringify(catalog)} />
+
+  <script>
+    import { $cartItems, setQty, removeItem } from '@/lib/cart/store';
+    import { formatPrice } from '@/lib/format';
+
+    interface CatalogProduct {
+      slug: string;
+      name: string;
+      shortDescription: string;
+      priceCents: number;
+      currency: string;
+      image: string | null;
+    }
+
+    function init() {
+      const root = document.getElementById('cart-items');
+      if (!root || root.dataset.cartInit) return;
+      root.dataset.cartInit = 'true';
+
+      const catalogEl = document.getElementById('product-catalog');
+      const catalog: CatalogProduct[] = catalogEl ? JSON.parse(catalogEl.textContent || '[]') : [];
+      const catalogBySlug = new Map(catalog.map((p) => [p.slug, p]));
+
+      const emptyState = document.getElementById('cart-empty-state')!;
+      const summary = document.getElementById('cart-summary')!;
+      const subtotalEl = document.getElementById('cart-subtotal')!;
+      const checkoutBtn = document.getElementById('cart-checkout-button') as HTMLButtonElement;
+      const checkoutLabel = document.getElementById('cart-checkout-label')!;
+      const checkoutError = document.getElementById('cart-checkout-error')!;
+      const canceledBanner = document.getElementById('cart-canceled-banner')!;
+
+      if (new URLSearchParams(window.location.search).get('canceled') === '1') {
+        canceledBanner.classList.remove('hidden');
+        canceledBanner.classList.add('flex');
+      }
+
+      function render() {
+        const items = $cartItems.get().filter((item) => catalogBySlug.has(item.slug));
+        root!.innerHTML = '';
+
+        if (items.length === 0) {
+          root!.classList.add('hidden');
+          summary.classList.add('hidden');
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        root!.classList.remove('hidden');
+        summary.classList.remove('hidden');
+
+        let subtotalCents = 0;
+        let currency = 'usd';
+
+        for (const item of items) {
+          const product = catalogBySlug.get(item.slug)!;
+          currency = product.currency;
+          const lineTotal = product.priceCents * item.qty;
+          subtotalCents += lineTotal;
+
+          const row = document.createElement('div');
+          row.className = 'flex items-center gap-4 py-5';
+
+          const thumb = document.createElement('div');
+          thumb.className =
+            'flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-500';
+          if (product.image) {
+            const img = document.createElement('img');
+            img.src = product.image;
+            img.alt = product.name;
+            img.className = 'h-full w-full object-cover';
+            thumb.appendChild(img);
+          } else {
+            thumb.innerHTML =
+              '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-6 w-6 text-gray-950"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+          }
+          row.appendChild(thumb);
+
+          const info = document.createElement('div');
+          info.className = 'min-w-0 flex-1';
+
+          const name = document.createElement('a');
+          name.href = `/shop/${product.slug}`;
+          name.className = 'font-semibold text-foreground hover:text-brand-600 transition-colors';
+          name.textContent = product.name;
+          info.appendChild(name);
+
+          const price = document.createElement('p');
+          price.className = 'mt-1 text-sm text-foreground-muted';
+          price.textContent = formatPrice(product.priceCents, product.currency);
+          info.appendChild(price);
+
+          const qtyRow = document.createElement('div');
+          qtyRow.className = 'mt-3 flex items-center gap-3';
+
+          const stepper = document.createElement('div');
+          stepper.className = 'inline-flex items-center rounded-md border border-border';
+
+          const decBtn = document.createElement('button');
+          decBtn.type = 'button';
+          decBtn.className =
+            'flex h-8 w-8 items-center justify-center text-foreground-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-40';
+          decBtn.setAttribute('aria-label', 'Decrease quantity');
+          decBtn.textContent = '−';
+          // Floor at 1 - decrementing never removes the item, use "Remove" for that.
+          decBtn.disabled = item.qty <= 1;
+          decBtn.addEventListener('click', () => {
+            if (item.qty <= 1) return;
+            setQty(product.slug, item.qty - 1);
+          });
+
+          const qtyLabel = document.createElement('span');
+          qtyLabel.className = 'w-8 text-center text-sm font-medium text-foreground';
+          qtyLabel.textContent = String(item.qty);
+
+          const incBtn = document.createElement('button');
+          incBtn.type = 'button';
+          incBtn.className = 'flex h-8 w-8 items-center justify-center text-foreground-muted hover:text-foreground';
+          incBtn.setAttribute('aria-label', 'Increase quantity');
+          incBtn.textContent = '+';
+          incBtn.addEventListener('click', () => setQty(product.slug, item.qty + 1));
+
+          stepper.append(decBtn, qtyLabel, incBtn);
+
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'text-sm text-foreground-subtle hover:text-error transition-colors';
+          removeBtn.textContent = 'Remove';
+          removeBtn.addEventListener('click', () => removeItem(product.slug));
+
+          qtyRow.append(stepper, removeBtn);
+          info.appendChild(qtyRow);
+          row.appendChild(info);
+
+          const lineTotalEl = document.createElement('div');
+          lineTotalEl.className = 'shrink-0 font-semibold text-foreground';
+          lineTotalEl.textContent = formatPrice(lineTotal, product.currency);
+          row.appendChild(lineTotalEl);
+
+          root!.appendChild(row);
+        }
+
+        subtotalEl.textContent = formatPrice(subtotalCents, currency);
+      }
+
+      $cartItems.subscribe(render);
+
+      checkoutBtn.addEventListener('click', async () => {
+        const items = $cartItems.get().filter((item) => catalogBySlug.has(item.slug));
+        if (items.length === 0) return;
+
+        checkoutError.classList.add('hidden');
+        checkoutBtn.disabled = true;
+        checkoutLabel.textContent = 'Redirecting…';
+
+        try {
+          const res = await fetch('/api/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.url) throw new Error(data.error || 'Checkout failed');
+          window.location.href = data.url;
+        } catch (err) {
+          checkoutBtn.disabled = false;
+          checkoutLabel.textContent = 'Checkout';
+          checkoutError.textContent =
+            err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+          checkoutError.classList.remove('hidden');
+        }
+      });
+    }
+
+    init();
+    document.addEventListener('astro:page-load', init);
+  </script>
+</PageLayout>

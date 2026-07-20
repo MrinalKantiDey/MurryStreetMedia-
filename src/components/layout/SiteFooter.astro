@@ -1,0 +1,77 @@
+---
+/**
+ * SiteFooter
+ * The single shared footer used across every layout (landing, page, blog) so
+ * the footer always looks identical no matter which page you're on.
+ */
+import Footer from '@/components/layout/Footer.astro';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import siteConfig, { socialProfiles } from '@/config/site.config';
+import { PUBLIC_CONSENT_ENABLED } from 'astro:env/client';
+
+const consentEnabled = PUBLIC_CONSENT_ENABLED;
+---
+
+<Footer
+  layout="columns"
+  columns={3}
+  background="invert"
+  showCopyright={false}
+  socialLinks={socialProfiles}
+>
+  <Fragment slot="tagline">Efficient. Effective. Executed.</Fragment>
+
+  <Fragment slot="columns">
+    <div class="space-y-[var(--space-stack-md)]">
+      <h3 class="text-sm font-semibold text-on-invert">Company</h3>
+      <ul class="space-y-2">
+        <li><a href="/" class="text-sm text-on-invert-muted transition-colors hover:text-on-invert">Home</a></li>
+        <li><a href="/about" class="text-sm text-on-invert-muted transition-colors hover:text-on-invert">About</a></li>
+        <li><a href="/services" class="text-sm text-on-invert-muted transition-colors hover:text-on-invert">Services</a></li>
+        <li><a href="/shop" class="text-sm text-on-invert-muted transition-colors hover:text-on-invert">Shop</a></li>
+        <li><a href="/contact" class="text-sm text-on-invert-muted transition-colors hover:text-on-invert">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="space-y-[var(--space-stack-md)]">
+      <h3 class="text-sm font-semibold text-on-invert">Get in touch</h3>
+      <ul class="space-y-2">
+        <li>
+          <a
+            href={`mailto:${siteConfig.email}`}
+            class="inline-flex items-center gap-2 text-sm text-on-invert-muted transition-colors hover:text-on-invert"
+          >
+            <Icon name="mail" size="xs" />
+            {siteConfig.email}
+          </a>
+        </li>
+        <li>
+          <span class="inline-flex items-center gap-2 text-sm text-on-invert-muted">
+            <Icon name="map-pin" size="xs" />
+            Dallas, Texas
+          </span>
+        </li>
+      </ul>
+    </div>
+  </Fragment>
+
+  <Fragment slot="bottom">
+    <div class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm text-on-invert-muted">
+      <span>&copy; {new Date().getFullYear()} Murry Street Media LLC. All rights reserved.</span>
+      <span class="text-on-invert-muted" aria-hidden="true">&middot;</span>
+      <span class="text-xs text-on-invert-muted">Created by StackNxt &middot; Developed with QuikoJS</span>
+    </div>
+    <div class="flex flex-wrap items-center justify-center gap-x-[var(--space-inline-lg)] gap-y-2">
+      {consentEnabled && (
+        <button
+          type="button"
+          data-open-consent-settings
+          class="text-sm text-on-invert-muted transition-colors hover:text-on-invert"
+        >
+          Cookie Preferences
+        </button>
+      )}
+      <p class="text-sm text-on-invert-muted">Dallas, Texas</p>
+    </div>
+  </Fragment>
+</Footer>

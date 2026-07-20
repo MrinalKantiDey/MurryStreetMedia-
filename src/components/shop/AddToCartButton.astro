@@ -1,0 +1,52 @@
+---
+import Button from '@/components/ui/form/Button/Button.astro';
+
+interface Props {
+  slug: string;
+  size?: 'sm' | 'md' | 'lg';
+  fullWidth?: boolean;
+  class?: string;
+}
+
+const { slug, size = 'md', fullWidth = false, class: className } = Astro.props;
+---
+
+<Button
+  type="button"
+  variant="outline"
+  size={size}
+  fullWidth={fullWidth}
+  class={className}
+  data-add-to-cart={slug}
+>
+  <span data-add-to-cart-label>Add to Cart</span>
+</Button>
+
+<script>
+  import { addItem } from '@/lib/cart/store';
+
+  function init() {
+    document.querySelectorAll<HTMLButtonElement>('[data-add-to-cart]').forEach((btn) => {
+      if (btn.dataset.cartInit) return;
+      btn.dataset.cartInit = 'true';
+
+      const slug = btn.dataset.addToCart;
+      const label = btn.querySelector<HTMLElement>('[data-add-to-cart-label]');
+      const originalText = label?.textContent ?? 'Add to Cart';
+
+      btn.addEventListener('click', () => {
+        if (!slug || !label) return;
+        addItem(slug);
+        label.textContent = 'Added ✓';
+        btn.disabled = true;
+        setTimeout(() => {
+          label.textContent = originalText;
+          btn.disabled = false;
+        }, 1500);
+      });
+    });
+  }
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>

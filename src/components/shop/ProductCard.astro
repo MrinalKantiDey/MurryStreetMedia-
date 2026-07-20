@@ -1,0 +1,68 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import Card from '@/components/ui/data-display/Card/Card.astro';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import ProductCoverGraphic from '@/components/shop/ProductCoverGraphic.astro';
+import { formatPrice } from '@/lib/products';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+const { product } = Astro.props;
+const { name, shortDescription, priceCents, currency, image, imageAlt, badge } = product.data;
+
+// This product doesn't have a photographed cover, so it uses a live
+// on-brand cover graphic (built from the real Logo + brand pattern) instead
+// of a raster image. Other products fall back to their `image` field, or a
+// generic icon placeholder if none is set.
+const useCoverGraphic = product.id === 'small-business-digital-starter-kit';
+---
+
+<Card href={`/shop/${product.id}`} hover padding="none" class="group flex flex-col overflow-hidden">
+  <div class="relative aspect-[16/10] overflow-hidden bg-brand-500">
+    {
+      useCoverGraphic ? (
+        <ProductCoverGraphic
+          title={name}
+          class="transition-transform duration-300 group-hover:scale-105"
+        />
+      ) : image ? (
+        <Image
+          src={image}
+          alt={imageAlt || name}
+          class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+      ) : (
+        <>
+          <div class="street-pattern-on-brand absolute inset-0" aria-hidden="true" />
+          <div class="relative flex h-full items-center justify-center">
+            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-950/10 text-gray-950">
+              <Icon name="file-text" size="lg" />
+            </div>
+          </div>
+        </>
+      )
+    }
+    {
+      badge && (
+        <span class="absolute right-4 top-4 rounded-full bg-gray-950 px-3 py-1 text-xs font-bold text-brand-500 shadow-sm">
+          {badge}
+        </span>
+      )
+    }
+  </div>
+
+  <div class="flex flex-1 flex-col gap-3 p-6">
+    <h3 class="font-display text-lg font-bold text-foreground">{name}</h3>
+    <p class="flex-1 text-sm leading-relaxed text-foreground-muted">{shortDescription}</p>
+    <div class="flex items-center justify-between pt-2">
+      <span class="text-xl font-bold text-foreground">{formatPrice(priceCents, currency)}</span>
+      <span class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 transition-colors group-hover:text-brand-700">
+        View details
+        <Icon name="arrow-right" size="xs" />
+      </span>
+    </div>
+  </div>
+</Card>

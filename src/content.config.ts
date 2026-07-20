@@ -62,9 +62,42 @@ const faqs = defineCollection({
   }),
 });
 
+// Digital products collection (PDF downloads sold via Stripe Checkout).
+// priceCents is the source of truth for checkout - always re-derived
+// server-side, never trusted from client-submitted values.
+const products = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/products' }),
+  schema: ({ image }) =>
+    z.object({
+      name: z.string().max(100),
+      shortDescription: z.string().max(300),
+      headline: z.string(),
+      priceCents: z.number().int().positive(),
+      currency: z.string().default('usd'),
+      image: image().optional(),
+      imageAlt: z.string().optional(),
+      pdfFile: z.string(),
+      features: z
+        .array(
+          z.object({
+            title: z.string(),
+            description: z.string(),
+            icon: z.string().optional(),
+          })
+        )
+        .default([]),
+      badge: z.string().optional(),
+      /** Short closing line rendered after the "What's inside" feature grid */
+      closingNote: z.string().optional(),
+      draft: z.boolean().default(false),
+      order: z.number().default(0),
+    }),
+});
+
 export const collections = {
   blog,
   pages,
   authors,
   faqs,
+  products,
 };

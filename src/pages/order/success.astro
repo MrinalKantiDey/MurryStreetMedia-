@@ -1,0 +1,127 @@
+---
+/**
+ * Order confirmation page
+ * URL: /order/success?session_id=cs_...
+ *
+ * Retrieves the Stripe session server-side (secret key never touches the
+ * client) and computes the same deterministic download token the webhook
+ * computes, so "Download now" works immediately without waiting on webhook
+ * delivery.
+ */
+export const prerender = false;
+
+import type Stripe from 'stripe';
+import PageLayout from '@/layouts/PageLayout.astro';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import Button from '@/components/ui/form/Button/Button.astro';
+import { getStripe } from '@/lib/stripe';
+import { getProduct, resolveSlugsFromLineItems, formatPrice } from '@/lib/products';
+import { createDownloadToken } from '@/lib/download-token';
+
+const sessionId = Astro.url.searchParams.get('session_id');
+
+let session: Stripe.Checkout.Session | null = null;
+let items: { product: Awaited<ReturnType<typeof getProduct>>; downloadUrl: string }[] = [];
+
+if (sessionId) {
+  try {
+    const stripe = getStripe();
+    session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['line_items', 'line_items.data.price.product'],
+    });
+
+    if (session.payment_status === 'paid' && session.line_items) {
+      const slugs = resolveSlugsFromLineItems(session.line_items);
+      const origin = Astro.url.origin;
+
+      for (const slug of slugs) {
+        const product = await getProduct(slug);
+        if (!product) continue;
+        const token = createDownloadToken({ slug: product.id, sessionId: session.id });
+        items.push({ product, downloadUrl: `${origin}/api/download/${token}` });
+      }
+    }
+  } catch (error) {
+    console.error('Could not retrieve checkout session:', error);
+    session = null;
+  }
+}
+
+const isPaid = session?.payment_status === 'paid' && items.length > 0;
+---
+
+<PageLayout title="Order confirmed" noindex>
+  <section class="mx-auto max-w-2xl px-6 py-[var(--space-section-lg)] text-center" data-order-paid={isPaid ? 'true' : 'false'}>
+    {
+      isPaid ? (
+        <>
+          <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-brand-500/15 text-gray-950">
+            <Icon name="check-circle" size="lg" />
+          </div>
+
+          <h1 class="font-display text-3xl font-bold text-foreground">Thanks for your purchase!</h1>
+          <p class="mt-3 text-foreground-muted">
+            {session?.customer_details?.email && (
+              <>
+                A receipt and your download link{items.length > 1 ? 's were' : ' was'} sent to{' '}
+                <span class="font-medium text-foreground">{session.customer_details.email}</span>.
+              </>
+            )}
+          </p>
+
+          <div class="mt-10 space-y-4 text-left">
+            {items.map(({ product, downloadUrl }) =>
+              product ? (
+                <div class="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-5">
+                  <div>
+                    <p class="font-semibold text-foreground">{product.data.name}</p>
+                    <p class="text-sm text-foreground-muted">
+                      {formatPrice(product.data.priceCents, product.data.currency)}
+                    </p>
+                  </div>
+                  <Button href={downloadUrl}>
+                    <Icon name="download" size="sm" />
+                    Download now
+                  </Button>
+                </div>
+              ) : null
+            )}
+          </div>
+
+          <p class="mt-8 text-xs text-foreground-subtle">
+            Download links stay active for 7 days. Lost the email? Just reply to your receipt and we'll resend it.
+          </p>
+
+          <div class="mt-8">
+            <Button variant="outline" href="/shop">
+              Continue shopping
+            </Button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-background-secondary">
+            <Icon name="alert-circle" size="lg" class="text-foreground-muted" />
+          </div>
+          <h1 class="font-display text-3xl font-bold text-foreground">We couldn't find that order</h1>
+          <p class="mt-3 text-foreground-muted">
+            If you just completed a purchase, check your email for the confirmation - it may take a
+            moment to arrive. Otherwise, head back to the shop to try again.
+          </p>
+          <div class="mt-8">
+            <Button href="/shop">Back to Shop</Button>
+          </div>
+        </>
+      )
+    }
+  </section>
+
+  <script>
+    import { clear } from '@/lib/cart/store';
+
+    const section = document.querySelector<HTMLElement>('[data-order-paid]');
+    if (section?.dataset.orderPaid === 'true') {
+      clear();
+    }
+  </script>
+</PageLayout>

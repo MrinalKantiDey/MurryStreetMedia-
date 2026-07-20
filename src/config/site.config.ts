@@ -103,6 +103,7 @@ export const socialProfiles = [
   { platform: 'facebook', href: 'https://www.facebook.com/profile.php?id=61590699216321', label: 'Follow us on Facebook' },
   { platform: 'instagram', href: 'https://www.instagram.com/murrystreetmedia/', label: 'Follow us on Instagram' },
   { platform: 'linkedin', href: 'https://www.linkedin.com/company/murry-street-media/', label: 'Follow us on LinkedIn' },
+  { platform: 'mail', href: `mailto:${siteConfig.email}`, label: 'Email us' },
 ];
 
 export default siteConfig;

@@ -5,7 +5,6 @@
  */
 import PageLayout from '@/layouts/PageLayout.astro';
 import Icon from '@/components/ui/primitives/Icon/Icon.astro';
-import Badge from '@/components/ui/data-display/Badge/Badge.astro';
 import Card from '@/components/ui/data-display/Card/Card.astro';
 import Button from '@/components/ui/form/Button/Button.astro';
 import CTASection from '@/components/ui/marketing/CTA/CTA.astro';
@@ -18,11 +17,16 @@ import siteConfig from '@/config/site.config';
   title="Pricing"
   description="Clear, upfront pricing for every media service we offer. No hidden fees, no markups, no surprises."
 >
-  <Hero layout="centered" size="sm" showGrid>
-    <Badge slot="badge" pill pulse>Pricing</Badge>
+  <Hero layout="centered" size="sm" showPattern tone="brand" class="bg-brand-500">
+    <span
+      slot="badge"
+      class="inline-flex items-center rounded-full bg-gray-950 px-5 py-2 text-sm font-bold tracking-wider text-white uppercase"
+    >
+      Pricing
+    </span>
 
     <h1 slot="title">
-      Clear pricing. <span class="text-brand-500">No surprises.</span>
+      Clear pricing. <span class="text-gray-950/70">No surprises.</span>
     </h1>
 
     <p slot="description">
@@ -31,7 +35,7 @@ import siteConfig from '@/config/site.config';
   </Hero>
 
   {/* ================= Pricing summary ================= */}
-  <section class="mx-auto max-w-5xl px-6 pb-[var(--space-section)]">
+  <section class="mx-auto max-w-5xl px-6 py-[var(--space-section)]">
     <div class="grid gap-6 md:grid-cols-2">
       {services.map((service) => (
         <Card padding="lg" class="flex flex-col">

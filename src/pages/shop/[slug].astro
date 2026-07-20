@@ -1,0 +1,173 @@
+---
+/**
+ * Product detail page
+ * URL: /shop/[slug]
+ */
+import { getCollection, render } from 'astro:content';
+import PageLayout from '@/layouts/PageLayout.astro';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import ProductFeatureList from '@/components/shop/ProductFeatureList.astro';
+import ProductCoverGraphic from '@/components/shop/ProductCoverGraphic.astro';
+import AddToCartButton from '@/components/shop/AddToCartButton.astro';
+import BuyNowButton from '@/components/shop/BuyNowButton.astro';
+import { formatPrice } from '@/lib/products';
+
+export async function getStaticPaths() {
+  const products = await getCollection('products', ({ data }) =>
+    import.meta.env.PROD ? data.draft !== true : true
+  );
+
+  return products.map((product) => ({
+    params: { slug: product.id },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+const { name, headline, priceCents, currency, features, image, imageAlt, badge, closingNote } =
+  product.data;
+const { Content } = await render(product);
+
+// This product doesn't have a photographed cover, so it uses a live
+// on-brand cover graphic instead of a raster image (see ProductCard.astro).
+const useCoverGraphic = product.id === 'small-business-digital-starter-kit';
+---
+
+<PageLayout title={name} description={product.data.shortDescription}>
+  <section
+    class="relative overflow-hidden bg-background-secondary py-[var(--space-section-md)]"
+    data-product-hero
+  >
+    <div class="mx-auto grid max-w-5xl items-center gap-10 px-6 lg:grid-cols-2 lg:items-stretch">
+      <div>
+        <a
+          href="/shop"
+          class="mb-6 inline-flex items-center gap-1 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground"
+        >
+          <Icon name="arrow-left" size="xs" />
+          Back to Shop
+        </a>
+
+        {
+          badge && (
+            <span class="mb-4 inline-flex items-center rounded-full bg-gray-950 px-3 py-1 text-xs font-bold text-brand-500">
+              {badge}
+            </span>
+          )
+        }
+
+        <h1 class="font-display text-2xl font-bold text-balance text-foreground md:text-3xl">
+          {headline}
+        </h1>
+
+        <p class="mt-4 text-lg leading-relaxed text-foreground-muted">
+          {product.data.shortDescription}
+        </p>
+
+        <div class="mt-8 flex items-center gap-4">
+          <span class="font-display text-4xl font-bold text-foreground">
+            {formatPrice(priceCents, currency)}
+          </span>
+          <span class="text-sm text-foreground-subtle">one-time payment · instant download</span>
+        </div>
+
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+          <BuyNowButton slug={product.id} size="lg" />
+          <AddToCartButton slug={product.id} size="lg" />
+        </div>
+
+        <p class="mt-4 flex items-center gap-2 text-xs text-foreground-subtle">
+          <Icon name="shield" size="xs" />
+          Instant email delivery with your download link + PDF attached
+        </p>
+      </div>
+
+      <div class="relative aspect-[4/3] min-h-72 overflow-hidden rounded-2xl bg-brand-500 shadow-xl lg:aspect-auto lg:h-full">
+        {
+          useCoverGraphic ? (
+            <ProductCoverGraphic title={name} class="p-8" />
+          ) : image ? (
+            <img
+              src={image.src}
+              alt={imageAlt || name}
+              class="h-full w-full object-cover"
+              width={image.width}
+              height={image.height}
+            />
+          ) : (
+            <>
+              <div class="street-pattern-on-brand absolute inset-0" aria-hidden="true" />
+              <div class="relative flex h-full items-center justify-center">
+                <div class="flex h-24 w-24 items-center justify-center rounded-3xl bg-gray-950/10 text-gray-950">
+                  <Icon name="file-text" size="xl" />
+                </div>
+              </div>
+            </>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-5xl px-6 py-[var(--space-section-md)]">
+    <div
+      class="prose prose-lg prose-headings:font-display prose-headings:font-bold prose-a:text-brand-600 hover:prose-a:text-brand-500 dark:prose-invert dark:prose-a:text-brand-400 dark:hover:prose-a:text-brand-300 max-w-none"
+    >
+      <Content />
+    </div>
+  </section>
+
+  {
+    features.length > 0 && (
+      <section class="mx-auto max-w-5xl px-6 pb-[var(--space-section-lg)]">
+        <h2 class="font-display mb-6 text-2xl font-bold text-foreground">What's inside</h2>
+        <ProductFeatureList features={features} />
+
+        {
+          closingNote && (
+            <p class="mt-8 border-t border-border pt-8 text-lg leading-relaxed text-foreground-muted">
+              {closingNote}
+            </p>
+          )
+        }
+      </section>
+    )
+  }
+
+  {/* Sticky buy bar - slides in once the hero (with its own Buy Now / Add to Cart) scrolls out of view */}
+  <div
+    id="sticky-buy-bar"
+    class="fixed inset-x-0 bottom-0 z-40 translate-y-full border-t border-border bg-background/95 shadow-[0_-4px_20px_-6px_rgba(0,0,0,0.15)] backdrop-blur-md transition-transform duration-200"
+  >
+    <div class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-3">
+      <div class="hidden min-w-0 sm:block">
+        <p class="truncate text-sm font-semibold text-foreground">{name}</p>
+        <p class="text-sm text-foreground-muted">{formatPrice(priceCents, currency)}</p>
+      </div>
+      <div class="flex flex-1 gap-3 sm:flex-none">
+        <BuyNowButton slug={product.id} />
+        <AddToCartButton slug={product.id} />
+      </div>
+    </div>
+  </div>
+</PageLayout>
+
+<script>
+  function initStickyBuyBar() {
+    const bar = document.getElementById('sticky-buy-bar');
+    const hero = document.querySelector<HTMLElement>('[data-product-hero]');
+    if (!bar || !hero || bar.dataset.stickyInit) return;
+    bar.dataset.stickyInit = 'true';
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        bar.classList.toggle('translate-y-full', entry.isIntersecting);
+      },
+      { rootMargin: '0px 0px -80% 0px' }
+    );
+    observer.observe(hero);
+  }
+
+  initStickyBuyBar();
+  document.addEventListener('astro:page-load', initStickyBuyBar);
+</script>

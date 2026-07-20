@@ -1,0 +1,167 @@
+---
+import { cn } from '@/lib/cn';
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+import Button from '@/components/ui/form/Button/Button.astro';
+import { getAllProducts } from '@/lib/products';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+const products = await getAllProducts();
+const catalog = products.map((product) => ({
+  slug: product.id,
+  name: product.data.name,
+  priceCents: product.data.priceCents,
+  currency: product.data.currency,
+  image: product.data.image?.src ?? null,
+}));
+---
+
+<div class="group relative" data-cart-hover>
+  <a
+    href="/cart"
+    class={cn(
+      'relative inline-flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-secondary',
+      className
+    )}
+    aria-label="View cart"
+    data-cart-button
+  >
+    <Icon name="shopping-cart" size="md" />
+    <span
+      data-cart-count
+      class="absolute -top-0.5 -right-0.5 hidden h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[10px] leading-none font-bold text-gray-950 ring-2 ring-background"
+    >
+      0
+    </span>
+  </a>
+
+  {/* Hover preview - shown via group-hover, populated client-side from the cart store */}
+  <div
+    data-cart-preview
+    class="invisible absolute right-0 top-full z-50 w-80 pt-2 opacity-0 transition-opacity duration-150 group-hover:visible group-hover:opacity-100"
+  >
+    <div class="rounded-xl border border-border bg-card p-4 text-left shadow-lg">
+      <p data-cart-preview-empty class="py-4 text-center text-sm text-foreground-muted">
+        Your cart is empty.
+      </p>
+
+      <div data-cart-preview-items class="hidden max-h-72 space-y-3 overflow-y-auto"></div>
+
+      <div data-cart-preview-footer class="mt-3 hidden border-t border-border pt-3">
+        <div class="mb-3 flex items-center justify-between text-sm font-semibold text-foreground">
+          <span>Subtotal</span>
+          <span data-cart-preview-subtotal>$0.00</span>
+        </div>
+        <Button href="/cart" size="sm" fullWidth>View Cart</Button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline type="application/json" id="cart-preview-catalog" set:html={JSON.stringify(catalog)} />
+
+<script>
+  import { $cartItems } from '@/lib/cart/store';
+  import { formatPrice } from '@/lib/format';
+
+  interface CatalogProduct {
+    slug: string;
+    name: string;
+    priceCents: number;
+    currency: string;
+    image: string | null;
+  }
+
+  function init() {
+    const wrapper = document.querySelector<HTMLElement>('[data-cart-hover]');
+    if (!wrapper || wrapper.dataset.cartPreviewInit) return;
+    wrapper.dataset.cartPreviewInit = 'true';
+
+    const catalogEl = document.getElementById('cart-preview-catalog');
+    const catalog: CatalogProduct[] = catalogEl ? JSON.parse(catalogEl.textContent || '[]') : [];
+    const catalogBySlug = new Map(catalog.map((p) => [p.slug, p]));
+
+    const countEl = wrapper.querySelector<HTMLElement>('[data-cart-count]');
+    const emptyEl = wrapper.querySelector<HTMLElement>('[data-cart-preview-empty]');
+    const itemsEl = wrapper.querySelector<HTMLElement>('[data-cart-preview-items]');
+    const footerEl = wrapper.querySelector<HTMLElement>('[data-cart-preview-footer]');
+    const subtotalEl = wrapper.querySelector<HTMLElement>('[data-cart-preview-subtotal]');
+    if (!countEl || !emptyEl || !itemsEl || !footerEl || !subtotalEl) return;
+
+    function render() {
+      const items = $cartItems.get().filter((item) => catalogBySlug.has(item.slug));
+      const count = items.reduce((sum, item) => sum + item.qty, 0);
+
+      countEl!.textContent = String(count);
+      countEl!.classList.toggle('hidden', count === 0);
+      countEl!.classList.toggle('flex', count > 0);
+
+      itemsEl!.innerHTML = '';
+
+      if (items.length === 0) {
+        emptyEl!.classList.remove('hidden');
+        itemsEl!.classList.add('hidden');
+        footerEl!.classList.add('hidden');
+        return;
+      }
+
+      emptyEl!.classList.add('hidden');
+      itemsEl!.classList.remove('hidden');
+      footerEl!.classList.remove('hidden');
+
+      let subtotalCents = 0;
+      let currency = 'usd';
+
+      for (const item of items) {
+        const product = catalogBySlug.get(item.slug)!;
+        currency = product.currency;
+        subtotalCents += product.priceCents * item.qty;
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3';
+
+        const thumb = document.createElement('div');
+        thumb.className =
+          'flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-brand-500';
+        if (product.image) {
+          const img = document.createElement('img');
+          img.src = product.image;
+          img.alt = product.name;
+          img.className = 'h-full w-full object-cover';
+          thumb.appendChild(img);
+        } else {
+          thumb.innerHTML =
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 text-gray-950"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+        }
+        row.appendChild(thumb);
+
+        const info = document.createElement('div');
+        info.className = 'min-w-0 flex-1';
+
+        const name = document.createElement('p');
+        name.className = 'truncate text-sm font-medium text-foreground';
+        name.textContent = product.name;
+        info.appendChild(name);
+
+        const meta = document.createElement('p');
+        meta.className = 'text-xs text-foreground-muted';
+        meta.textContent = `${item.qty} × ${formatPrice(product.priceCents, product.currency)}`;
+        info.appendChild(meta);
+
+        row.appendChild(info);
+        itemsEl!.appendChild(row);
+      }
+
+      subtotalEl!.textContent = formatPrice(subtotalCents, currency);
+    }
+
+    $cartItems.subscribe(render);
+  }
+
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>

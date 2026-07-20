@@ -1,0 +1,48 @@
+---
+/**
+ * Shop listing page
+ * URL: /shop
+ */
+import PageLayout from '@/layouts/PageLayout.astro';
+import { Hero } from '@/components/hero';
+import ProductCard from '@/components/shop/ProductCard.astro';
+import { getAllProducts } from '@/lib/products';
+
+const products = await getAllProducts();
+---
+
+<PageLayout
+  title="Shop"
+  description="Done-for-you digital guides and toolkits to help your small business look professional online, right out of the box."
+>
+  <Hero layout="centered" size="sm" showPattern tone="brand" class="bg-brand-500">
+    <span
+      slot="badge"
+      class="inline-flex items-center rounded-full bg-gray-950 px-5 py-2 text-sm font-bold tracking-wider text-white uppercase"
+    >
+      Shop
+    </span>
+
+    <h1 slot="title">
+      Digital <span class="text-gray-950/70">starter kits</span> for small business.
+    </h1>
+
+    <p slot="description">
+      Step-by-step, done-for-you guides you can put to work today - no agency retainer required.
+    </p>
+  </Hero>
+
+  <section class="mx-auto max-w-5xl px-6 py-[var(--space-section)]">
+    {
+      products.length > 0 ? (
+        <div class="grid gap-6 sm:grid-cols-2">
+          {products.map((product) => (
+            <ProductCard product={product} />
+          ))}
+        </div>
+      ) : (
+        <p class="py-16 text-center text-foreground-muted">More kits are on the way — check back soon.</p>
+      )
+    }
+  </section>
+</PageLayout>

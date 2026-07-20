@@ -16,18 +16,18 @@ import siteConfig from '@/config/site.config';
 const process = [
   {
     icon: 'phone',
-    title: 'The Alignment Call',
-    body: 'A 30-45-minute deep dive to verify your market targets, active channels, review your contract in depth, and clarify budget benchmarks to ensure a perfect strategic fit.',
+    title: 'The Alignment Call (30-45 Mins)',
+    body: 'A quick, deep dive to look at your target audience, review budgets, and make sure we are a perfect strategic fit.',
   },
   {
     icon: 'layers',
-    title: 'The Rigorous Onboarding Phase',
-    body: 'We execute a deep, systemized onboarding process inside our operational blueprints so your team knows exactly what is happening at every milestone—ensuring nobody is left behind.',
+    title: 'Streamlined Onboarding',
+    body: "We handle the heavy lifting to get connected to your systems. We use a step-by-step checklist so your team always knows exactly what's happening next.",
   },
   {
     icon: 'trending-up',
-    title: 'The Systemized Launch',
-    body: 'We deploy your custom media frameworks with 100% account sovereignty, daily tracking visibility, and plain-language execution.',
+    title: 'The Flawless Launch',
+    body: 'We deploy your custom ad campaigns. You retain 100% ownership of your accounts, and receive regular updates in plain English.',
   },
 ];
 ---
@@ -36,11 +36,16 @@ const process = [
   title="Services & Pricing"
   description="Straight-forward pricing with no hidden fees, no markups, and no opaque agency jargon. See exactly what you pay for and where your budget goes."
 >
-  <Hero layout="centered" size="sm" showGrid>
-    <Badge slot="badge" pill pulse>Services & Pricing</Badge>
+  <Hero layout="centered" size="sm" showPattern tone="brand" class="bg-brand-500">
+    <span
+      slot="badge"
+      class="inline-flex items-center rounded-full bg-gray-950 px-5 py-2 text-sm font-bold tracking-wider text-white uppercase"
+    >
+      Services & Pricing
+    </span>
 
     <h1 slot="title">
-      Straight-forward pricing. <span class="text-brand-500">Zero hidden fees.</span>
+      Straight-forward pricing. <span class="text-gray-950/70">Zero hidden fees.</span>
     </h1>
 
     <p slot="description">
@@ -49,12 +54,12 @@ const process = [
   </Hero>
 
   {/* ================= Intro ================= */}
-  <section class="mx-auto max-w-4xl px-6 pb-[var(--space-section)] text-center">
+  <section class="mx-auto max-w-4xl px-6 py-[var(--space-section)] text-center">
     <h2 class="font-display text-2xl font-bold text-foreground text-balance md:text-3xl">
       Core Media Services & Straight-Forward Pricing
     </h2>
     <p class="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-foreground-muted">
-      We specialize in high-touch, process-driven paid media execution. To ensure seamless campaign deployment and protect your capital integrity, each service runs through our rigorous, 17-year battle-tested blueprints.
+      We manage your advertising budget with the same absolute rigor and care we would use for our own. Every campaign we build uses frameworks developed and pressure-tested over 17 years to protect your investment and scale your business.
     </p>
   </section>
 
@@ -130,10 +135,10 @@ const process = [
       <div class="mx-auto max-w-3xl text-center">
         <Badge pill class="mx-auto">Our Structured Client Activation Process</Badge>
         <h2 class="font-display mt-[var(--space-heading-gap)] text-3xl font-bold text-balance md:text-4xl">
-          Every partnership begins transparently
+          We believe in absolute transparency. No onboarding surprises, no hidden traps.
         </h2>
         <p class="mt-4 text-lg leading-relaxed text-foreground-muted">
-          Here is exactly how we get started — with no onboarding surprises.
+          Every partnership begins transparently. Here is exactly how we get started with no onboarding surprises.
         </p>
       </div>
 

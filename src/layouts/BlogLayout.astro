@@ -2,7 +2,7 @@
 import type { ImageMetadata } from 'astro';
 import BaseLayout from './BaseLayout.astro';
 import Header from '@/components/layout/Header.astro';
-import Footer from '@/components/layout/Footer.astro';
+import SiteFooter from '@/components/layout/SiteFooter.astro';
 import Breadcrumbs from '@/components/seo/Breadcrumbs.astro';
 import ArticleHero from '@/components/blog/ArticleHero.astro';
 import ShareButtons from '@/components/blog/ShareButtons.astro';
@@ -62,6 +62,7 @@ const fullUrl = new URL(Astro.url.pathname, Astro.site).toString();
     size="lg"
     showActiveState
     showCta
+    showCart
     cta={{ label: 'View Docs', href: 'https://docs.deployvelocity.com' }}
     extraNav={[{ label: 'Features', href: '#features' }]}
     actions={[
@@ -137,5 +138,5 @@ const fullUrl = new URL(Astro.url.pathname, Astro.site).toString();
     )
   }
 
-  <Footer slot="footer" layout="simple" background="secondary" showCopyright={false} />
+  <SiteFooter slot="footer" />
 </BaseLayout>

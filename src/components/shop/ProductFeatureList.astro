@@ -1,0 +1,31 @@
+---
+import Icon from '@/components/ui/primitives/Icon/Icon.astro';
+
+interface Feature {
+  title: string;
+  description: string;
+  icon?: string;
+}
+
+interface Props {
+  features: Feature[];
+}
+
+const { features } = Astro.props;
+---
+
+<div class="grid gap-5 sm:grid-cols-2">
+  {
+    features.map((feature) => (
+      <div class="border-border bg-card flex gap-4 rounded-xl border p-5">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-500/15 text-gray-950">
+          <Icon name={feature.icon || 'check'} size="sm" />
+        </div>
+        <div>
+          <h3 class="text-foreground font-semibold">{feature.title}</h3>
+          <p class="mt-1 text-sm leading-relaxed text-foreground-muted">{feature.description}</p>
+        </div>
+      </div>
+    ))
+  }
+</div>

@@ -5,7 +5,6 @@
  */
 import PageLayout from '@/layouts/PageLayout.astro';
 import Icon from '@/components/ui/primitives/Icon/Icon.astro';
-import Badge from '@/components/ui/data-display/Badge/Badge.astro';
 import Button from '@/components/ui/form/Button/Button.astro';
 import Input from '@/components/ui/form/Input/Input.astro';
 import Textarea from '@/components/ui/form/Textarea/Textarea.astro';
@@ -24,15 +23,20 @@ const socialLabels: Record<string, string> = {
   title="Contact Us"
   description="Get in touch with the Velocity team."
 >
-  <Hero layout="centered" size="sm" showGrid>
-    <Badge slot="badge" pill pulse>Get in Touch</Badge>
+  <Hero layout="centered" size="sm" showPattern tone="brand" class="bg-brand-500">
+    <span
+      slot="badge"
+      class="inline-flex items-center rounded-full bg-gray-950 px-5 py-2 text-sm font-bold tracking-wider text-white uppercase"
+    >
+      Get in Touch
+    </span>
 
     <h1 slot="title">
-      Let's <span class="text-brand-500">connect.</span>
+      Let's <span class="text-gray-950/70">connect.</span>
     </h1>
 
     <p slot="description">
-      Have a question or just want to say hello? We'd love to hear from you.
+      Have a question or just want to say hello?<br/> We'd love to hear from you.
     </p>
   </Hero>
 
